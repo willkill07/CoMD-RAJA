@@ -7,8 +7,7 @@
 #include "mytype.h"
 
 /// Domain decomposition information.
-typedef struct DomainSt
-{
+struct Domain {
    // process-layout data
    int procGrid[3];        //!< number of processors in each dimension
    int procCoord[3];       //!< i,j,k for this processor
@@ -22,9 +21,9 @@ typedef struct DomainSt
    real3 localMin;         //!< minimum coordinate on local processor
    real3 localMax;         //!< maximum coordinate on local processor
    real3 localExtent;      //!< localMax - localMin
-} Domain;
+};
 
-struct DomainSt* initDecomposition(int xproc, int yproc, int zproc,
+Domain* initDecomposition(int xproc, int yproc, int zproc,
                                    real3 globalExtent);
 
 /// Find the MPI rank of a neighbor domain from a relative coordinate.

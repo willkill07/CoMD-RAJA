@@ -3,7 +3,7 @@
 ///
 /// The Embedded Atom Model (EAM) is a widely used model of atomic
 /// interactions in simple metals.
-/// 
+///
 /// http://en.wikipedia.org/wiki/Embedded_atom_model
 ///
 /// In the EAM, the total potential energy is written as a sum of a pair
@@ -101,32 +101,30 @@
 #include "performanceTimers.h"
 #include "haloExchange.h"
 
-#define MAX(A,B) ((A) > (B) ? (A) : (B))
+#include <algorithm>
 
 /// Handles interpolation of tabular data.
 ///
 /// \see initInterpolationObject
 /// \see interpolate
-typedef struct InterpolationObjectSt 
-{
+struct InterpolationObject {
    int n;          //!< the number of values in the table
    real_t x0;      //!< the starting ordinate range
    real_t invDx;   //!< the inverse of the table spacing
    real_t* values; //!< the abscissa values
-} InterpolationObject;
+};
 
 /// Derived struct for an EAM potential.
 /// Uses table lookups for function evaluation.
 /// Polymorphic with BasePotential.
 /// \see BasePotential
-typedef struct EamPotentialSt 
-{
+struct EamPotential {
    real_t cutoff;          //!< potential cutoff distance in Angstroms
    real_t mass;            //!< mass of atoms in intenal units
    real_t lat;             //!< lattice spacing (angs) of unit cell
    char latticeType[8];    //!< lattice type, e.g. FCC, BCC, etc.
-   char  name[3];	   //!< element name
-   int	 atomicNo;	   //!< atomic number  
+   char  name[3];          //!< element name
+   int   atomicNo;         //!< atomic number
    int  (*force)(SimFlat* s); //!< function pointer to force routine
    void (*print)(FILE* file, BasePotential* pot);
    void (*destroy)(BasePotential** pot); //!< destruction of the potential
@@ -138,12 +136,12 @@ typedef struct EamPotentialSt
    real_t* dfEmbed;       //!< per atom storage for derivative of Embedding
    HaloExchange* forceExchange;
    ForceExchangeData* forceExchangeData;
-} EamPotential;
+};
 
 // EAM functionality
 static int eamForce(SimFlat* s);
 static void eamPrint(FILE* file, BasePotential* pot);
-static void eamDestroy(BasePotential** pot); 
+static void eamDestroy(BasePotential** pot);
 static void eamBcastPotential(EamPotential* pot);
 
 
@@ -171,7 +169,7 @@ static void typeNotSupported(const char* callSite, const char* type);
 /// \param [in] type  The file format of the potential file (setfl or funcfl).
 BasePotential* initEamPot(const char* dir, const char* file, const char* type)
 {
-   EamPotential* pot = comdMalloc(sizeof(EamPotential));
+  EamPotential* pot = comdMalloc<EamPotential>(1);
    assert(pot);
    pot->force = eamForce;
    pot->print = eamPrint;
@@ -198,7 +196,7 @@ BasePotential* initEamPot(const char* dir, const char* file, const char* type)
          typeNotSupported("initEamPot", type);
    }
    eamBcastPotential(pot);
-   
+
    return (BasePotential*) pot;
 }
 
@@ -212,7 +210,7 @@ BasePotential* initEamPot(const char* dir, const char* file, const char* type)
 ///   derivative for each atom
 ///   -# Loop over all atoms and their neighbors, compute the embedding
 ///   energy contribution to the force and add to the two-body force
-/// 
+///
 int eamForce(SimFlat* s)
 {
    EamPotential* pot = (EamPotential*) s->pot;
@@ -222,14 +220,14 @@ int eamForce(SimFlat* s)
    if (pot->forceExchange == NULL)
    {
       int maxTotalAtoms = MAXATOMS*s->boxes->nTotalBoxes;
-      pot->dfEmbed = comdMalloc(maxTotalAtoms*sizeof(real_t));
-      pot->rhobar  = comdMalloc(maxTotalAtoms*sizeof(real_t));
+      pot->dfEmbed = comdMalloc<real_t>(maxTotalAtoms);
+      pot->rhobar  = comdMalloc<real_t>(maxTotalAtoms);
       pot->forceExchange = initForceHaloExchange(s->domain, s->boxes);
-      pot->forceExchangeData = comdMalloc(sizeof(ForceExchangeData));
+      pot->forceExchangeData = comdMalloc<ForceExchangeData>(1);
       pot->forceExchangeData->dfEmbed = pot->dfEmbed;
       pot->forceExchangeData->boxes = s->boxes;
    }
-   
+
    real_t rCut2 = pot->cutoff*pot->cutoff;
    real_t etot = 0.;
 
@@ -340,7 +338,7 @@ int eamForce(SimFlat* s)
          {
             // loop over atoms in jBox
             for (int jOff=MAXATOMS*jBox; jOff<(MAXATOMS*jBox+nJBox); jOff++)
-            { 
+            {
 
                real_t r2 = 0.0;
                real3 dr;
@@ -380,10 +378,10 @@ void eamPrint(FILE* file, BasePotential* pot)
    fprintf(file, "  Potential type  : EAM\n");
    fprintf(file, "  Species name    : %s\n", eamPot->name);
    fprintf(file, "  Atomic number   : %d\n", eamPot->atomicNo);
-   fprintf(file, "  Mass            : "FMT1" amu\n", eamPot->mass/amuToInternalMass); // print in amu
+   fprintf(file, "  Mass            : " FMT1 " amu\n", eamPot->mass/amuToInternalMass); // print in amu
    fprintf(file, "  Lattice type    : %s\n", eamPot->latticeType);
-   fprintf(file, "  Lattice spacing : "FMT1" Angstroms\n", eamPot->lat);
-   fprintf(file, "  Cutoff          : "FMT1" Angstroms\n", eamPot->cutoff);
+   fprintf(file, "  Lattice spacing : " FMT1 " Angstroms\n", eamPot->lat);
+   fprintf(file, "  Cutoff          : " FMT1 " Angstroms\n", eamPot->cutoff);
 }
 
 void eamDestroy(BasePotential** pPot)
@@ -407,8 +405,8 @@ void eamDestroy(BasePotential** pPot)
 void eamBcastPotential(EamPotential* pot)
 {
    assert(pot);
-   
-   struct 
+
+   struct
    {
       real_t cutoff, mass, lat;
       char latticeType[8];
@@ -448,25 +446,24 @@ void eamBcastPotential(EamPotential* pot)
 /// \param [in] n    number of values in the table.
 /// \param [in] x0   minimum ordinate value of the table.
 /// \param [in] dx   spacing of the ordinate values.
-/// \param [in] data abscissa values.  An array of size n. 
+/// \param [in] data abscissa values.  An array of size n.
 InterpolationObject* initInterpolationObject(
    int n, real_t x0, real_t dx, real_t* data)
 {
-   InterpolationObject* table =
-      (InterpolationObject *)comdMalloc(sizeof(InterpolationObject)) ;
+  InterpolationObject* table = comdMalloc<InterpolationObject>(1);
    assert(table);
 
-   table->values = (real_t*)comdCalloc(1, (n+3)*sizeof(real_t));
+   table->values = comdCalloc<real_t>(1, n + 3);
    assert(table->values);
 
-   table->values++; 
+   table->values++;
    table->n = n;
    table->invDx = 1.0/dx;
    table->x0 = x0;
 
    for (int ii=0; ii<n; ++ii)
       table->values[ii] = data[ii];
-   
+
    table->values[-1] = table->values[0];
    table->values[n+1] = table->values[n] = table->values[n-1];
 
@@ -512,7 +509,7 @@ void destroyInterpolationObject(InterpolationObject** a)
 void interpolate(InterpolationObject* table, real_t r, real_t* f, real_t* df)
 {
    const real_t* tt = table->values; // alias
-   
+
    if ( r < table->x0 ) r = table->x0;
 
    r = (r-table->x0)*(table->invDx) ;
@@ -560,14 +557,14 @@ void bcastInterpolationObject(InterpolationObject** table)
    if (getMyRank() != 0)
    {
       assert(*table == NULL);
-      *table = comdMalloc(sizeof(InterpolationObject));
+      *table = comdMalloc<InterpolationObject>(1);
       (*table)->n      = buf.n;
       (*table)->x0     = buf.x0;
       (*table)->invDx  = buf.invDx;
-      (*table)->values = comdMalloc(sizeof(real_t) * (buf.n+3) );
+      (*table)->values = comdMalloc<real_t>(buf.n + 3);
       (*table)->values++;
    }
-   
+
    int valuesSize = sizeof(real_t) * ((*table)->n+3);
    bcastParallel((*table)->values-1, valuesSize, 0);
 }
@@ -586,7 +583,7 @@ void printTableData(InterpolationObject* table, const char* fileName)
    }
    fclose(potData);
 }
-   
+
 /// Reads potential data from a setfl file and populates
 /// corresponding members and InterpolationObjects in an EamPotential.
 ///
@@ -608,22 +605,22 @@ void printTableData(InterpolationObject* table, const char* fileName)
 /// | bn       | electron density, starting at r=0
 /// |   ...    | (nr values. Multiple values per line allowed.)
 /// | repeat   | Return to b1 for each atom type.
-/// | phi      | phi_ij for (1,1), (2,1), (2,2), (3,1), (3,2), (3,3), (4,1), ..., 
+/// | phi      | phi_ij for (1,1), (2,1), (2,2), (3,1), (3,2), (3,3), (4,1), ...,
 /// | p1       | pair potential between type i and type j, starting at r=0
 /// |   ...    | (nr values. Multiple values per line allowed.)
 /// | repeat   | Return to p1 for each phi_ij
 ///
 /// Where:
-///    -  ntypes        :      number of element types in the potential  
+///    -  ntypes        :      number of element types in the potential
 ///    -  nrho          :      number of points the embedding energy F(rhobar)
-///    -  drho          :      table spacing for rhobar 
+///    -  drho          :      table spacing for rhobar
 ///    -  nr            :      number of points for rho(r) and phi(r)
 ///    -  dr            :      table spacing for r in Angstroms
 ///    -  rcutoff       :      cut-off distance in Angstroms
 ///    -  ielem(i)      :      atomic number for element(i)
 ///    -  amass(i)      :      atomic mass for element(i) in AMU
 ///    -  latConst(i)   :      lattice constant for element(i) in Angstroms
-///    -  latType(i)    :      lattice type for element(i)  
+///    -  latType(i)    :      lattice type for element(i)
 ///
 /// setfl format stores r*phi(r), so we need to converted to the pair
 /// potential phi(r).  In the file, phi(r)*r is in eV*Angstroms.
@@ -639,7 +636,7 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
    FILE* potFile = fopen(tmp, "r");
    if (potFile == NULL)
       fileNotFound("eamReadSetfl", tmp);
-   
+
    // read the first 3 lines (comments)
    fgets(tmp, sizeof(tmp), potFile);
    fgets(tmp, sizeof(tmp), potFile);
@@ -661,7 +658,7 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
    pot->cutoff = cutoff;
 
    // **** THIS CODE IS RESTRICTED TO ONE ELEMENT
-   // Per-atom header 
+   // Per-atom header
    fgets(tmp, sizeof(tmp), potFile);
    int nAtomic;
    double mass, lat;
@@ -671,10 +668,10 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
    pot->lat = lat;
    pot->mass = mass * amuToInternalMass;  // file has mass in AMU.
    strcpy(pot->latticeType, latticeType);
-   
+
    // allocate read buffer
-   int bufSize = MAX(nRho, nR);
-   real_t* buf = comdMalloc(bufSize * sizeof(real_t));
+   int bufSize = std::max(nRho, nR);
+   real_t* buf = comdMalloc<real_t>(bufSize);
    real_t x0 = 0.0;
 
    // Read embedding energy F(rhobar)
@@ -708,11 +705,11 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
 
 /// Reads potential data from a funcfl file and populates
 /// corresponding members and InterpolationObjects in an EamPotential.
-/// 
+///
 /// funcfl is a file format for tabulated potential functions used by
 /// the original EAM code DYNAMO.  A funcfl file contains an EAM
 /// potential for a single element.
-/// 
+///
 /// The contents of a funcfl file are:
 ///
 /// | Line Num | Description
@@ -731,7 +728,7 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
 ///    -  elem          :   atomic number for this element
 ///    -  amass         :   atomic mass for this element in AMU
 ///    -  latConstant   :   lattice constant for this elemnent in Angstroms
-///    -  lattticeType  :   lattice type for this element (e.g. FCC) 
+///    -  lattticeType  :   lattice type for this element (e.g. FCC)
 ///    -  nrho          :   number of values for the embedding function, F(rhobar)
 ///    -  drho          :   table spacing for rhobar
 ///    -  nr            :   number of values for Z(r) and rho(r)
@@ -740,7 +737,7 @@ void eamReadSetfl(EamPotential* pot, const char* dir, const char* potName)
 ///
 /// funcfl format stores the "electrostatic interation" Z(r).  This needs to
 /// be converted to the pair potential phi(r).
-/// using the formula 
+/// using the formula
 /// \f[phi = Z(r) * Z(r) / r\f]
 /// NB: phi is not defined for r = 0
 ///
@@ -784,8 +781,8 @@ void eamReadFuncfl(EamPotential* pot, const char* dir, const char* potName)
    real_t x0 = 0.0; // tables start at zero.
 
    // allocate read buffer
-   int bufSize = MAX(nRho, nR);
-   real_t* buf = comdMalloc(bufSize * sizeof(real_t));
+   int bufSize = std::max(nRho, nR);
+   real_t* buf = comdMalloc<real_t>(bufSize);
 
    // read embedding energy
    for (int ii=0; ii<nRho; ++ii)
@@ -810,7 +807,7 @@ void eamReadFuncfl(EamPotential* pot, const char* dir, const char* potName)
    pot->rho = initInterpolationObject(nR, x0, dR, buf);
 
    comdFree(buf);
-   
+
 /*    printPot(pot->f,   "funcflDataF.txt"); */
 /*    printPot(pot->rho, "funcflDataRho.txt"); */
 /*    printPot(pot->phi, "funcflDataPhi.txt"); */

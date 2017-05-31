@@ -10,7 +10,7 @@
 /// atom iAtom in any given link cell, we can be certain that all atoms
 /// that interact with iAtom are contained in the same link cell, or one
 /// of the 26 neighboring link cells.
-/// 
+///
 /// CoMD chooses the link cell size (boxSize) on each axis to be the
 /// shortest possible distance, longer than cutoff, such that the local
 /// domain size divided by boxSize is an integer.  I.e., the link cells
@@ -72,8 +72,7 @@
 #include "performanceTimers.h"
 #include "CoMDTypes.h"
 
-#define   MIN(A,B) ((A) < (B) ? (A) : (B))
-#define   MAX(A,B) ((A) > (B) ? (A) : (B))
+#include <algorithm>
 
 static void copyAtom(LinkCell* boxes, Atoms* atoms, int iAtom, int iBox, int jAtom, int jBox);
 static int getBoxFromCoord(LinkCell* boxes, real_t rr[3]);
@@ -83,7 +82,7 @@ static void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp);
 LinkCell* initLinkCells(const Domain* domain, real_t cutoff)
 {
    assert(domain);
-   LinkCell* ll = comdMalloc(sizeof(LinkCell));
+   LinkCell* ll = comdMalloc<LinkCell>(1);
 
    for (int i = 0; i < 3; i++)
    {
@@ -95,24 +94,24 @@ LinkCell* initLinkCells(const Domain* domain, real_t cutoff)
    }
 
    ll->nLocalBoxes = ll->gridSize[0] * ll->gridSize[1] * ll->gridSize[2];
-   
+
    ll->nHaloBoxes = 2 * ((ll->gridSize[0] + 2) *
                          (ll->gridSize[1] + ll->gridSize[2] + 2) +
                          (ll->gridSize[1] * ll->gridSize[2]));
 
    ll->nTotalBoxes = ll->nLocalBoxes + ll->nHaloBoxes;
-   
-   ll->nAtoms = comdMalloc(ll->nTotalBoxes*sizeof(int));
+
+   ll->nAtoms = comdMalloc<int>(ll->nTotalBoxes);
    for (int iBox=0; iBox<ll->nTotalBoxes; ++iBox)
       ll->nAtoms[iBox] = 0;
 
    assert ( (ll->gridSize[0] >= 2) && (ll->gridSize[1] >= 2) && (ll->gridSize[2] >= 2) );
 
    // Added creating neighbors once
-   ll->nbrBoxes = comdMalloc(ll->nTotalBoxes*sizeof(int*));
+   ll->nbrBoxes = comdMalloc<int*>(ll->nTotalBoxes);
    for (int iBox=0; iBox<ll->nTotalBoxes; ++iBox)
    {
-      ll->nbrBoxes[iBox] = comdMalloc(27*sizeof(int));
+     ll->nbrBoxes[iBox] = comdMalloc<int>(27);
    }
 
    for (int iBox=0; iBox<ll->nLocalBoxes; ++iBox)
@@ -145,13 +144,13 @@ int getNeighborBoxes(LinkCell* boxes, int iBox, int* nbrBoxes)
 {
    int ix, iy, iz;
    getTuple(boxes, iBox, &ix, &iy, &iz);
-   
+
    int count = 0;
    for (int i=ix-1; i<=ix+1; i++)
       for (int j=iy-1; j<=iy+1; j++)
          for (int k=iz-1; k<=iz+1; k++)
             nbrBoxes[count++] = getBoxFromTuple(boxes,i,j,k);
-   
+
    return count;
 }
 
@@ -172,23 +171,23 @@ void putAtomInBox(LinkCell* boxes, Atoms* atoms,
                   const real_t px, const real_t py, const real_t pz)
 {
    real_t xyz[3] = {x,y,z};
-   
+
    // Find correct box.
    int iBox = getBoxFromCoord(boxes, xyz);
    int iOff = iBox*MAXATOMS;
    iOff += boxes->nAtoms[iBox];
-   
+
    // assign values to array elements
    if (iBox < boxes->nLocalBoxes)
       atoms->nLocal++;
    boxes->nAtoms[iBox]++;
    atoms->gid[iOff] = gid;
    atoms->iSpecies[iOff] = iType;
-   
+
    atoms->r[iOff][0] = x;
    atoms->r[iOff][1] = y;
    atoms->r[iOff][2] = z;
-   
+
    atoms->p[iOff][0] = px;
    atoms->p[iOff][1] = py;
    atoms->p[iOff][2] = pz;
@@ -204,7 +203,7 @@ int getBoxFromTuple(LinkCell* boxes, int ix, int iy, int iz)
 {
    int iBox = 0;
    const int* gridSize = boxes->gridSize; // alias
-   
+
    // Halo in Z+
    if (iz == gridSize[2])
    {
@@ -267,7 +266,7 @@ void moveAtom(LinkCell* boxes, Atoms* atoms, int iId, int iBox, int jBox)
 
    if (jBox > boxes->nLocalBoxes)
       --atoms->nLocal;
-   
+
    return;
 }
 
@@ -287,7 +286,7 @@ void moveAtom(LinkCell* boxes, Atoms* atoms, int iId, int iBox, int jBox)
 void updateLinkCells(LinkCell* boxes, Atoms* atoms)
 {
    emptyHaloCells(boxes);
-   
+
    for (int iBox=0; iBox<boxes->nLocalBoxes; ++iBox)
    {
       int iOff = iBox*MAXATOMS;
@@ -308,7 +307,7 @@ int maxOccupancy(LinkCell* boxes)
 {
    int localMax = 0;
    for (int ii=0; ii<boxes->nLocalBoxes; ++ii)
-      localMax = MAX(localMax, boxes->nAtoms[ii]);
+     localMax = std::max(localMax, boxes->nAtoms[ii]);
 
    int globalMax;
 
@@ -356,7 +355,7 @@ int getBoxFromCoord(LinkCell* boxes, real_t rr[3])
 
    // For each axis, if we are inside the local domain, make sure we get
    // a local link cell.  Otherwise, make sure we get a halo link cell.
-   if (rr[0] < localMax[0]) 
+   if (rr[0] < localMax[0])
    {
       if (ix == gridSize[0]) ix = gridSize[0] - 1;
    }
@@ -374,7 +373,7 @@ int getBoxFromCoord(LinkCell* boxes, real_t rr[3])
    }
    else
       iz = gridSize[2];
-   
+
    return getBoxFromTuple(boxes, ix, iy, iz);
 }
 
@@ -397,7 +396,7 @@ void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp)
 {
    int ix, iy, iz;
    const int* gridSize = boxes->gridSize; // alias
-   
+
    // If a local box
    if( iBox < boxes->nLocalBoxes)
    {
@@ -407,17 +406,17 @@ void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp)
       iz = iBox / gridSize[1];
    }
    // It's a halo box
-   else 
+   else
    {
       int ink;
       ink = iBox - boxes->nLocalBoxes;
       if (ink < 2*gridSize[1]*gridSize[2])
       {
-         if (ink < gridSize[1]*gridSize[2]) 
+         if (ink < gridSize[1]*gridSize[2])
          {
             ix = 0;
          }
-         else 
+         else
          {
             ink -= gridSize[1]*gridSize[2];
             ix = gridSize[0] + 1;
@@ -425,14 +424,14 @@ void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp)
          iy = 1 + ink % gridSize[1];
          iz = 1 + ink / gridSize[1];
       }
-      else if (ink < (2 * gridSize[2] * (gridSize[1] + gridSize[0] + 2))) 
+      else if (ink < (2 * gridSize[2] * (gridSize[1] + gridSize[0] + 2)))
       {
          ink -= 2 * gridSize[2] * gridSize[1];
-         if (ink < ((gridSize[0] + 2) *gridSize[2])) 
+         if (ink < ((gridSize[0] + 2) *gridSize[2]))
          {
             iy = 0;
          }
-         else 
+         else
          {
             ink -= (gridSize[0] + 2) * gridSize[2];
             iy = gridSize[1] + 1;
@@ -440,14 +439,14 @@ void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp)
          ix = ink % (gridSize[0] + 2);
          iz = 1 + ink / (gridSize[0] + 2);
       }
-      else 
+      else
       {
          ink -= 2 * gridSize[2] * (gridSize[1] + gridSize[0] + 2);
-         if (ink < ((gridSize[0] + 2) * (gridSize[1] + 2))) 
+         if (ink < ((gridSize[0] + 2) * (gridSize[1] + 2)))
          {
             iz = 0;
          }
-         else 
+         else
          {
             ink -= (gridSize[0] + 2) * (gridSize[1] + 2);
             iz = gridSize[2] + 1;
@@ -455,16 +454,14 @@ void getTuple(LinkCell* boxes, int iBox, int* ixp, int* iyp, int* izp)
          ix = ink % (gridSize[0] + 2);
          iy = ink / (gridSize[0] + 2);
       }
-      
+
       // Calculated as off by 1
       ix--;
       iy--;
       iz--;
    }
-   
+
    *ixp = ix;
    *iyp = iy;
    *izp = iz;
 }
-
-

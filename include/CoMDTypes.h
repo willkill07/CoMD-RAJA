@@ -11,7 +11,7 @@
 #include "decomposition.h"
 #include "initAtoms.h"
 
-struct SimFlatSt;
+struct SimFlat;
 
 /// The base struct from which all potentials derive.  Think of this as an
 /// abstract base class.
@@ -25,46 +25,43 @@ struct SimFlatSt;
 ///  The choice of distance, energy, and time units means that the unit
 ///  of mass is eV*fs^2/Angstrom^2.  Hence, we must convert masses that
 ///  are input in AMU (atomic mass units) into internal mass units.
-typedef struct BasePotentialSt 
+struct BasePotential
 {
    real_t cutoff;          //!< potential cutoff distance in Angstroms
    real_t mass;            //!< mass of atoms in intenal units
    real_t lat;             //!< lattice spacing (angs) of unit cell
    char latticeType[8];    //!< lattice type, e.g. FCC, BCC, etc.
-   char  name[3];	   //!< element name
-   int	 atomicNo;	   //!< atomic number  
-   int  (*force)(struct SimFlatSt* s); //!< function pointer to force routine
-   void (*print)(FILE* file, struct BasePotentialSt* pot);
-   void (*destroy)(struct BasePotentialSt** pot); //!< destruction of the potential
-} BasePotential;
+   char  name[3];          //!< element name
+   int   atomicNo;         //!< atomic number
+   int  (*force)(SimFlat* s); //!< function pointer to force routine
+   void (*print)(FILE* file, BasePotential* pot);
+   void (*destroy)(BasePotential** pot); //!< destruction of the potential
+};
 
 
 /// species data: chosen to match the data found in the setfl/funcfl files
-typedef struct SpeciesDataSt
-{
+struct SpeciesData {
    char  name[3];   //!< element name
-   int	 atomicNo;  //!< atomic number  
+   int   atomicNo;  //!< atomic number
    real_t mass;     //!< mass in internal units
-} SpeciesData;
+};
 
-/// Simple struct to store the initial energy and number of atoms. 
-/// Used to check energy conservation and atom conservation. 
-typedef struct ValidateSt
-{
+/// Simple struct to store the initial energy and number of atoms.
+/// Used to check energy conservation and atom conservation.
+struct Validate {
    double eTot0; //<! Initial total energy
    int nAtoms0;  //<! Initial global number of atoms
-} Validate;
+};
 
-/// 
+///
 /// The fundamental simulation data structure with MAXATOMS in every
 /// link cell.
-/// 
-typedef struct SimFlatSt
-{
+///
+struct SimFlat {
    int nSteps;            //<! number of time steps to run
    int printRate;         //<! number of steps between output
    double dt;             //<! time step
-   
+
    Domain* domain;        //<! domain decomposition data
 
    LinkCell* boxes;       //<! link-cell data
@@ -72,14 +69,14 @@ typedef struct SimFlatSt
    Atoms* atoms;          //<! atom data (positions, momenta, ...)
 
    SpeciesData* species;  //<! species data (per species, not per atom)
-   
+
    real_t ePotential;     //!< the total potential energy of the system
    real_t eKinetic;       //!< the total kinetic energy of the system
 
-   BasePotential *pot;	  //!< the potential
+   BasePotential *pot;    //!< the potential
 
    HaloExchange* atomExchange;
-   
-} SimFlat;
+
+};
 
 #endif

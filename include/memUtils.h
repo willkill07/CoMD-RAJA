@@ -6,25 +6,25 @@
 
 #include <stdlib.h>
 
-#define freeMe(s,element) {if(s->element) comdFree(s->element);  s->element = NULL;}
+#define freeMe(s, element)                                                     \
+  {                                                                            \
+    if (s->element)                                                            \
+      comdFree(s->element);                                                    \
+    s->element = NULL;                                                         \
+  }
 
-static void* comdMalloc(size_t iSize)
-{
-   return malloc(iSize);
+template <typename T> inline T *comdMalloc(size_t iSize) {
+  return (T *)malloc(iSize * sizeof(T));
 }
 
-static void* comdCalloc(size_t num, size_t iSize)
-{
-   return calloc(num, iSize);
+template <typename T> inline T *comdCalloc(size_t num, size_t iSize) {
+  return (T *)calloc(num, sizeof(T) * iSize);
 }
 
-static void* comdRealloc(void* ptr, size_t iSize)
-{
-   return realloc(ptr, iSize);
+template <typename T> inline T *comdRealloc(void *ptr, size_t iSize) {
+  return (T *)realloc(ptr, sizeof(T) * iSize);
 }
 
-static void comdFree(void *ptr)
-{
-   free(ptr);
-}
+template <typename T> inline void comdFree(T *ptr) { free((void *)ptr); }
+
 #endif

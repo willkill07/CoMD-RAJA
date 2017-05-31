@@ -8,8 +8,7 @@
 
 /// A structure to hold the value of every run-time parameter that can
 /// be read from the command line.
-typedef struct CommandSt
-{
+struct Command {
    char potDir[1024];  //!< the directory where EAM potentials reside
    char potName[1024]; //!< the name of the potential
    char potType[1024]; //!< the type of the potential (funcfl or setfl)
@@ -26,7 +25,7 @@ typedef struct CommandSt
    double lat;         //!< lattice constant (in Angstroms)
    double temperature; //!< simulation initial temperature (in Kelvin)
    double initialDelta; //!< magnitude of initial displacement from lattice (in Angstroms)
-} Command;
+};
 
 /// Process command line arguments into an easy to handle structure.
 Command parseCommandLine(int argc, char** argv);

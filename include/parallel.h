@@ -7,11 +7,10 @@
 #include "mytype.h"
 
 /// Structure for use with MPI_MINLOC and MPI_MAXLOC operations.
-typedef struct RankReduceDataSt
-{
+struct RankReduceData {
    double val;
    int rank;
-} RankReduceData;
+};
 
 /// Return total number of processors.
 int getNRanks(void);
@@ -63,4 +62,3 @@ void bcastParallel(void* buf, int len, int root);
 int builtWithMpi(void);
 
 #endif
-

@@ -1,9 +1,9 @@
-USE_CPLUSPLUS = Off
+USE_CPLUSPLUS = ON
 DOUBLE_PRECISION = ON
 
 # Compiler Flags -- Edit to your desire
 CXX := g++
-CXXFLAGS := -std=c++11 -fopenmp -O3 -march=native -fno-exceptions
+CXXFLAGS := -std=c++11 -fopenmp -O3 -march=native -fno-exceptions -fno-rtti
 
 CC := gcc
 CFLAGS := -std=c99 -fopenmp -O3 -march=native

@@ -5,9 +5,9 @@
 #define __HALO_EXCHANGE_
 
 #include "mytype.h"
-struct AtomsSt;
-struct LinkCellSt;
-struct DomainSt;
+struct Atoms;
+struct LinkCell;
+struct Domain;
 
 /// A polymorphic structure to store information about a halo exchange.
 /// This structure can be thought of as an abstract base class that
@@ -23,7 +23,7 @@ struct DomainSt;
 ///
 /// \see eamForce
 /// \see redistributeAtoms
-typedef struct HaloExchangeSt
+struct HaloExchange
 {
    /// The MPI ranks of the six face neighbors of the local domain.
    /// Ranks are stored in the order specified in HaloFaceOrder.
@@ -65,14 +65,13 @@ typedef struct HaloExchangeSt
    /// A pointer to a sub-class specific structure that contains
    /// additional data members needed by the sub-class.
    void* parms;
-} 
-HaloExchange;
+};
 
 /// Create a HaloExchange for atom data.
-HaloExchange* initAtomHaloExchange(struct DomainSt* domain, struct LinkCellSt* boxes);
+HaloExchange* initAtomHaloExchange(Domain* domain, LinkCell* boxes);
 
 /// Create a HaloExchange for force data.
-HaloExchange* initForceHaloExchange(struct DomainSt* domain, struct LinkCellSt* boxes);
+HaloExchange* initForceHaloExchange(Domain* domain, LinkCell* boxes);
 
 /// HaloExchange destructor.
 void destroyHaloExchange(HaloExchange** haloExchange);
@@ -81,6 +80,6 @@ void destroyHaloExchange(HaloExchange** haloExchange);
 void haloExchange(HaloExchange* haloExchange, void* data);
 
 /// Sort the atoms by gid in the specified link cell.
-void sortAtomsInCell(struct AtomsSt* atoms, struct LinkCellSt* boxes, int iBox);
+void sortAtomsInCell(Atoms* atoms, LinkCell* boxes, int iBox);
 
 #endif

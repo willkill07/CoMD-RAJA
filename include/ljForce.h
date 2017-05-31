@@ -4,8 +4,8 @@
 #ifndef _LJTYPES_H_
 #define _LJTYPES_H_
 
-struct BasePotentialSt;
-struct BasePotentialSt* initLjPot(void);
+struct BasePotential;
+
+BasePotential* initLjPot(void);
 
 #endif
-

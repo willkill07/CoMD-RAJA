@@ -23,6 +23,13 @@ FILE* yamlFile = NULL;
 static const char* CoMDVersion = "1.1";
 static const char* CoMDVariant = "CoMD - Original";
 
+
+void printSeparator(FILE* file)
+{
+      //fprintf(file,"=========================================================================\n");
+      fprintf(file,"\n");
+}
+
 static void getTimeString(char* timestring)
 {
    time_t rawtime;
@@ -85,10 +92,4 @@ void yamlEnd(void)
       return;
 
    fclose(yamlFile);
-}
-
-void printSeparator(FILE* file)
-{
-      //fprintf(file,"=========================================================================\n");
-      fprintf(file,"\n");
 }

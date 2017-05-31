@@ -11,6 +11,6 @@ void computeForce(SimFlat* s);
 void kineticEnergy(SimFlat* s);
 
 /// Update local and remote link cells after atoms have moved.
-void redistributeAtoms(struct SimFlatSt* sim);
+void redistributeAtoms(SimFlat* sim);
 
 #endif

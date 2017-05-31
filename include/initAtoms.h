@@ -6,12 +6,11 @@
 
 #include "mytype.h"
 
-struct SimFlatSt;
-struct LinkCellSt;
+struct SimFlat;
+struct LinkCell;
 
 /// Atom data
-typedef struct AtomsSt
-{
+struct Atoms {
    // atom-specific data
    int nLocal;    //!< total number of atoms on this processor
    int nGlobal;   //!< total number of atoms in simulation
@@ -21,18 +20,18 @@ typedef struct AtomsSt
 
    real3*  r;     //!< positions
    real3*  p;     //!< momenta of atoms
-   real3*  f;     //!< forces 
+   real3*  f;     //!< forces
    real_t* U;     //!< potential energy per atom
-} Atoms;
+};
 
 
 /// Allocates memory to store atom data.
-Atoms* initAtoms(struct LinkCellSt* boxes);
-void destroyAtoms(struct AtomsSt* atoms);
+Atoms* initAtoms(LinkCell* boxes);
+void destroyAtoms(Atoms* atoms);
 
-void createFccLattice(int nx, int ny, int nz, real_t lat, struct SimFlatSt* s);
+void createFccLattice(int nx, int ny, int nz, real_t lat, SimFlat* s);
 
-void setVcm(struct SimFlatSt* s, real_t vcm[3]);
-void setTemperature(struct SimFlatSt* s, real_t temperature);
-void randomDisplacements(struct SimFlatSt* s, real_t delta);
+void setVcm(SimFlat* s, real_t vcm[3]);
+void setTemperature(SimFlat* s, real_t temperature);
+void randomDisplacements(SimFlat* s, real_t delta);
 #endif

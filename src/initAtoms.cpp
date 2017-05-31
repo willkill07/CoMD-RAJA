@@ -22,16 +22,16 @@ static void computeVcm(SimFlat* s, real_t vcm[3]);
 /// initial atom positions and momenta.
 Atoms* initAtoms(LinkCell* boxes)
 {
-   Atoms* atoms = comdMalloc(sizeof(Atoms));
+  Atoms* atoms = comdMalloc<Atoms>(1);
 
    int maxTotalAtoms = MAXATOMS*boxes->nTotalBoxes;
 
-   atoms->gid =      (int*)   comdMalloc(maxTotalAtoms*sizeof(int));
-   atoms->iSpecies = (int*)   comdMalloc(maxTotalAtoms*sizeof(int));
-   atoms->r =        (real3*) comdMalloc(maxTotalAtoms*sizeof(real3));
-   atoms->p =        (real3*) comdMalloc(maxTotalAtoms*sizeof(real3));
-   atoms->f =        (real3*) comdMalloc(maxTotalAtoms*sizeof(real3));
-   atoms->U =        (real_t*)comdMalloc(maxTotalAtoms*sizeof(real_t));
+   atoms->gid =      comdMalloc<int>(maxTotalAtoms);
+   atoms->iSpecies = comdMalloc<int>(maxTotalAtoms);
+   atoms->r =        comdMalloc<real3>(maxTotalAtoms);
+   atoms->p =        comdMalloc<real3>(maxTotalAtoms);
+   atoms->f =        comdMalloc<real3>(maxTotalAtoms);
+   atoms->U =        comdMalloc<real_t>(maxTotalAtoms);
 
    atoms->nLocal = 0;
    atoms->nGlobal = 0;
@@ -67,7 +67,7 @@ void createFccLattice(int nx, int ny, int nz, real_t lat, SimFlat* s)
 {
    const real_t* localMin = s->domain->localMin; // alias
    const real_t* localMax = s->domain->localMax; // alias
-   
+
    int nb = 4; // number of atoms in the basis
    real3 basis[4] = { {0.25, 0.25, 0.25},
       {0.25, 0.75, 0.75},
@@ -163,7 +163,7 @@ void setTemperature(SimFlat* s, real_t temperature)
       }
    }
    // compute the resulting temperature
-   // kinetic energy  = 3/2 kB * Temperature 
+   // kinetic energy  = 3/2 kB * Temperature
    if (temperature == 0.0) return;
    real_t vZero[3] = {0., 0., 0.};
    setVcm(s, vZero);
@@ -214,7 +214,7 @@ void computeVcm(SimFlat* s, real_t vcm[3])
    real_t v2 = 0.0;
    real_t v3 = 0.0;
 
-   // sum the momenta and particle masses 
+   // sum the momenta and particle masses
    #pragma omp parallel for reduction(+:v0) reduction(+:v1) reduction(+:v2) reduction(+:v3)
    for (int iBox=0; iBox<s->boxes->nLocalBoxes; ++iBox)
    {
@@ -243,4 +243,3 @@ void computeVcm(SimFlat* s, real_t vcm[3])
    vcm[1] = vcmSum[1]/totalMass;
    vcm[2] = vcmSum[2]/totalMass;
 }
-

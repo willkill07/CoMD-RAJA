@@ -56,7 +56,7 @@
 ///
 /// where \f$\hat{r}_{ij}\f$ is a unit vector in the direction from atom
 /// i to atom j.
-/// 
+///
 ///
 
 #include "ljForce.h"
@@ -84,8 +84,8 @@ typedef struct LjPotentialSt
    real_t mass;            //!< mass of atoms in intenal units
    real_t lat;             //!< lattice spacing (angs) of unit cell
    char latticeType[8];    //!< lattice type, e.g. FCC, BCC, etc.
-   char  name[3];	   //!< element name
-   int	 atomicNo;	   //!< atomic number  
+   char  name[3];          //!< element name
+   int   atomicNo;         //!< atomic number
    int  (*force)(SimFlat* s); //!< function pointer to force routine
    void (*print)(FILE* file, BasePotential* pot);
    void (*destroy)(BasePotential** pot); //!< destruction of the potential
@@ -110,11 +110,11 @@ void ljDestroy(BasePotential** inppot)
 /// Initialize an Lennard Jones potential for Copper.
 BasePotential* initLjPot(void)
 {
-   LjPotential *pot = (LjPotential*)comdMalloc(sizeof(LjPotential));
+  LjPotential *pot = comdMalloc<LjPotential>(1);
    pot->force = ljForce;
    pot->print = ljPrint;
    pot->destroy = ljDestroy;
-   pot->sigma = 2.315;	                  // Angstrom
+   pot->sigma = 2.315;                    // Angstrom
    pot->epsilon = 0.167;                  // eV
    pot->mass = 63.55 * amuToInternalMass; // Atomic Mass Units (amu)
 
@@ -134,12 +134,12 @@ void ljPrint(FILE* file, BasePotential* pot)
    fprintf(file, "  Potential type   : Lennard-Jones\n");
    fprintf(file, "  Species name     : %s\n", ljPot->name);
    fprintf(file, "  Atomic number    : %d\n", ljPot->atomicNo);
-   fprintf(file, "  Mass             : "FMT1" amu\n", ljPot->mass / amuToInternalMass); // print in amu
+   fprintf(file, "  Mass             : " FMT1 " amu\n", ljPot->mass / amuToInternalMass); // print in amu
    fprintf(file, "  Lattice Type     : %s\n", ljPot->latticeType);
-   fprintf(file, "  Lattice spacing  : "FMT1" Angstroms\n", ljPot->lat);
-   fprintf(file, "  Cutoff           : "FMT1" Angstroms\n", ljPot->cutoff);
-   fprintf(file, "  Epsilon          : "FMT1" eV\n", ljPot->epsilon);
-   fprintf(file, "  Sigma            : "FMT1" Angstroms\n", ljPot->sigma);
+   fprintf(file, "  Lattice spacing  : " FMT1 " Angstroms\n", ljPot->lat);
+   fprintf(file, "  Cutoff           : " FMT1 " Angstroms\n", ljPot->cutoff);
+   fprintf(file, "  Epsilon          : " FMT1 " eV\n", ljPot->epsilon);
+   fprintf(file, "  Sigma            : " FMT1 " Angstroms\n", ljPot->sigma);
 }
 
 int ljForce(SimFlat* s)
@@ -160,7 +160,7 @@ int ljForce(SimFlat* s)
       zeroReal3(s->atoms->f[ii]);
       s->atoms->U[ii] = 0.;
    }
-   
+
    real_t s6 = sigma*sigma*sigma*sigma*sigma*sigma;
 
    real_t rCut6 = s6 / (rCut2*rCut2*rCut2);
@@ -173,16 +173,16 @@ int ljForce(SimFlat* s)
    for (int iBox=0; iBox<s->boxes->nLocalBoxes; iBox++)
    {
       int nIBox = s->boxes->nAtoms[iBox];
-   
+
       // loop over neighbors of iBox
       for (int jTmp=0; jTmp<nNbrBoxes; jTmp++)
       {
          int jBox = s->boxes->nbrBoxes[iBox][jTmp];
-         
+
          assert(jBox>=0);
-         
+
          int nJBox = s->boxes->nAtoms[jBox];
-         
+
          // loop over atoms in iBox
          for (int iOff=MAXATOMS*iBox; iOff<(iBox*MAXATOMS+nIBox); iOff++)
          {

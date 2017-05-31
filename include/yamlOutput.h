@@ -4,7 +4,7 @@
 #ifndef __YAML_OUTPUT_H
 #define __YAML_OUTPUT_H
 
-#include <stdio.h>
+#include <cstdio>
 
 /// Provide access to the YAML file in other compliation units.
 extern FILE* yamlFile;
