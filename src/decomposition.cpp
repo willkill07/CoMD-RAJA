@@ -4,12 +4,12 @@
 /// divided into equal size bricks by a grid that is xproc by yproc by
 /// zproc in size.
 
-#include "decomposition.h"
+#include "decomposition.hpp"
 
 #include <assert.h>
 
-#include "memUtils.h"
-#include "parallel.h"
+#include "memUtils.hpp"
+#include "parallel.hpp"
 
 /// \param [in] xproc x-size of domain decomposition grid.
 /// \param [in] yproc y-size of domain decomposition grid.

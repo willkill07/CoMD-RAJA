@@ -48,19 +48,19 @@
 #include <strings.h>
 #include <unistd.h>
 
-#include "CoMDTypes.h"
-#include "constants.h"
-#include "decomposition.h"
-#include "eam.h"
-#include "initAtoms.h"
-#include "linkCells.h"
-#include "ljForce.h"
-#include "memUtils.h"
-#include "mycommand.h"
-#include "parallel.h"
-#include "performanceTimers.h"
-#include "timestep.h"
-#include "yamlOutput.h"
+#include "CoMDTypes.hpp"
+#include "constants.hpp"
+#include "decomposition.hpp"
+#include "eam.hpp"
+#include "initAtoms.hpp"
+#include "linkCells.hpp"
+#include "ljForce.hpp"
+#include "memUtils.hpp"
+#include "mycommand.hpp"
+#include "parallel.hpp"
+#include "performanceTimers.hpp"
+#include "timestep.hpp"
+#include "yamlOutput.hpp"
 
 #define REDIRECT_OUTPUT 0
 

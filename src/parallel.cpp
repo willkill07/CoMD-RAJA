@@ -5,7 +5,7 @@
 /// DO_MPI is not defined then all MPI functionality is replaced with
 /// equivalent single task behavior.
 
-#include "parallel.h"
+#include "parallel.hpp"
 
 #ifdef DO_MPI
 #include <mpi.h>

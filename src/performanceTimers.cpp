@@ -27,7 +27,7 @@
 
 #include <cinttypes>
 
-#include "performanceTimers.h"
+#include "performanceTimers.hpp"
 
 #include <stdio.h>
 #include <sys/time.h>
@@ -36,10 +36,10 @@
 #include <inttypes.h>
 #include <math.h>
 
-#include "performanceTimers.h"
-#include "mytype.h"
-#include "parallel.h"
-#include "yamlOutput.h"
+#include "performanceTimers.hpp"
+#include "mytype.hpp"
+#include "parallel.hpp"
+#include "yamlOutput.hpp"
 
 static uint64_t getTime(void);
 static double getTick(void);

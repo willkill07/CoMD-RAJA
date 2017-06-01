@@ -59,18 +59,18 @@
 ///
 /// \param [in] cutoff The cutoff distance of the potential.
 
-#include "linkCells.h"
+#include "linkCells.hpp"
 
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cassert>
+#include <cmath>
 
-#include "parallel.h"
-#include "memUtils.h"
-#include "decomposition.h"
-#include "performanceTimers.h"
-#include "CoMDTypes.h"
+#include "parallel.hpp"
+#include "memUtils.hpp"
+#include "decomposition.hpp"
+#include "performanceTimers.hpp"
+#include "CoMDTypes.hpp"
 
 #include <algorithm>
 

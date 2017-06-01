@@ -28,17 +28,17 @@
 /// network links would likely benefit from alternate halo exchange
 /// strategies that send independent messages to each neighbor task.
 
-#include "haloExchange.h"
+#include "haloExchange.hpp"
 
 #include <assert.h>
 
-#include "CoMDTypes.h"
-#include "decomposition.h"
-#include "eam.h"
-#include "linkCells.h"
-#include "memUtils.h"
-#include "parallel.h"
-#include "performanceTimers.h"
+#include "CoMDTypes.hpp"
+#include "decomposition.hpp"
+#include "eam.hpp"
+#include "linkCells.hpp"
+#include "memUtils.hpp"
+#include "parallel.hpp"
+#include "performanceTimers.hpp"
 
 #include <algorithm>
 

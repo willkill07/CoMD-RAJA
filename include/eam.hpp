@@ -4,7 +4,7 @@
 #ifndef __EAM_H
 #define __EAM_H
 
-#include "mytype.h"
+#include "mytype.hpp"
 
 struct BasePotential;
 struct LinkCell;

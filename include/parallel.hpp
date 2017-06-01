@@ -4,7 +4,7 @@
 #ifndef _PARALLEL_H_
 #define _PARALLEL_H_
 
-#include "mytype.h"
+#include "mytype.hpp"
 
 /// Structure for use with MPI_MINLOC and MPI_MAXLOC operations.
 struct RankReduceData {

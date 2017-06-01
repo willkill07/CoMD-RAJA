@@ -1,14 +1,14 @@
 /// \file
 /// Leapfrog time integrator
 
-#include "timestep.h"
+#include "timestep.hpp"
 
 #include <omp.h>
 
-#include "CoMDTypes.h"
-#include "linkCells.h"
-#include "parallel.h"
-#include "performanceTimers.h"
+#include "CoMDTypes.hpp"
+#include "linkCells.hpp"
+#include "parallel.hpp"
+#include "performanceTimers.hpp"
 
 static void advanceVelocity(SimFlat* s, int nBoxes, real_t dt);
 static void advancePosition(SimFlat* s, int nBoxes, real_t dt);

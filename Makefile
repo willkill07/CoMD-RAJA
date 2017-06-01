@@ -3,7 +3,7 @@ DOUBLE_PRECISION = ON
 
 # Compiler Flags -- Edit to your desire
 CXX := g++
-CXXFLAGS := -std=c++11 -fopenmp -O3 -march=native -fno-exceptions -fno-rtti
+CXXFLAGS := -std=c++11 -fopenmp -O3 -march=native -fno-exceptions -fno-rtti -Wall -Wextra -Wpedantic
 
 CC := gcc
 CFLAGS := -std=c99 -fopenmp -O3 -march=native

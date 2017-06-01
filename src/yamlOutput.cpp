@@ -15,8 +15,8 @@
 #include <time.h>
 #include <omp.h>
 
-#include "mytype.h"
-#include "parallel.h"
+#include "mytype.hpp"
+#include "parallel.hpp"
 
 FILE* yamlFile = NULL;
 

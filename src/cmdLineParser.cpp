@@ -7,14 +7,14 @@
 /// \author Sriram Swaminarayan
 /// \date July 24, 2007
 
-#include "cmdLineParser.h"
+#include "cmdLineParser.hpp"
 
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "memUtils.h"
-#include "mytype.h"
+#include "memUtils.hpp"
+#include "mytype.hpp"
 
 #include <algorithm>
 

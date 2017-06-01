@@ -4,7 +4,7 @@
 #ifndef __HALO_EXCHANGE_
 #define __HALO_EXCHANGE_
 
-#include "mytype.h"
+#include "mytype.hpp"
 struct Atoms;
 struct LinkCell;
 struct Domain;

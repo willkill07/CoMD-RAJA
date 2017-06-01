@@ -4,12 +4,13 @@
 #ifndef __COMDTYPES_H_
 #define __COMDTYPES_H_
 
-#include <stdio.h>
-#include "mytype.h"
-#include "haloExchange.h"
-#include "linkCells.h"
-#include "decomposition.h"
-#include "initAtoms.h"
+#include <cstdio>
+
+#include "mytype.hpp"
+#include "haloExchange.hpp"
+#include "linkCells.hpp"
+#include "decomposition.hpp"
+#include "initAtoms.hpp"
 
 struct SimFlat;
 

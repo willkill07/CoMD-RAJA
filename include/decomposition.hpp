@@ -4,7 +4,7 @@
 #ifndef _GEOMETRY_H_
 #define _GEOMETRY_H_
 
-#include "mytype.h"
+#include "mytype.hpp"
 
 /// Domain decomposition information.
 struct Domain {

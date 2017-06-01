@@ -4,7 +4,7 @@
 #ifndef __LEAPFROG_H
 #define __LEAPFROG_H
 
-#include "CoMDTypes.h"
+#include "CoMDTypes.hpp"
 
 double timestep(SimFlat* s, int n, real_t dt);
 void computeForce(SimFlat* s);

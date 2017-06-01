@@ -4,7 +4,7 @@
 #ifndef __LINK_CELLS_H_
 #define __LINK_CELLS_H_
 
-#include "mytype.h"
+#include "mytype.hpp"
 
 /// The maximum number of atoms that can be stored in a link cell.
 #define MAXATOMS 64

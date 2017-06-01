@@ -1,14 +1,14 @@
 /// \file
 /// Handle command line arguments.
 
-#include "mycommand.h"
+#include "mycommand.hpp"
 
 #include <string.h>
 #include <stdlib.h>
 
-#include "cmdLineParser.h"
-#include "parallel.h"
-#include "mytype.h"
+#include "cmdLineParser.hpp"
+#include "parallel.hpp"
+#include "mytype.hpp"
 
 /// \page pg_running_comd Running CoMD
 ///

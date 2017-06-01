@@ -4,7 +4,7 @@
 #ifndef __INIT_ATOMS_H
 #define __INIT_ATOMS_H
 
-#include "mytype.h"
+#include "mytype.hpp"
 
 struct SimFlat;
 struct LinkCell;

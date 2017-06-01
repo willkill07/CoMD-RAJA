@@ -1,19 +1,19 @@
 /// \file
 /// Initialize the atom configuration.
 
-#include "initAtoms.h"
+#include "initAtoms.hpp"
 
-#include <math.h>
-#include <assert.h>
+#include <cmath>
+#include <cassert>
 
-#include "constants.h"
-#include "decomposition.h"
-#include "parallel.h"
-#include "random.h"
-#include "linkCells.h"
-#include "timestep.h"
-#include "memUtils.h"
-#include "performanceTimers.h"
+#include "constants.hpp"
+#include "decomposition.hpp"
+#include "parallel.hpp"
+#include "random.hpp"
+#include "linkCells.hpp"
+#include "timestep.hpp"
+#include "memUtils.hpp"
+#include "performanceTimers.hpp"
 
 static void computeVcm(SimFlat* s, real_t vcm[3]);
 
@@ -40,9 +40,9 @@ Atoms* initAtoms(LinkCell* boxes)
    {
       atoms->gid[iOff] = 0;
       atoms->iSpecies[iOff] = 0;
-      zeroReal3(atoms->r[iOff]);
-      zeroReal3(atoms->p[iOff]);
-      zeroReal3(atoms->f[iOff]);
+      zeroArray(atoms->r[iOff]);
+      zeroArray(atoms->p[iOff]);
+      zeroArray(atoms->f[iOff]);
       atoms->U[iOff] = 0.;
    }
 

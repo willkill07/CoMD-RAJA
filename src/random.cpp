@@ -4,7 +4,7 @@
 ///  really industrial strength, but they're more than good enough for
 ///  present purposes.
 
-#include "random.h"
+#include "random.hpp"
 
 #include <math.h>
 

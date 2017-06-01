@@ -59,19 +59,19 @@
 ///
 ///
 
-#include "ljForce.h"
+#include "ljForce.hpp"
 
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 #include <omp.h>
 
-#include "constants.h"
-#include "mytype.h"
-#include "parallel.h"
-#include "linkCells.h"
-#include "memUtils.h"
-#include "CoMDTypes.h"
+#include "constants.hpp"
+#include "mytype.hpp"
+#include "parallel.hpp"
+#include "linkCells.hpp"
+#include "memUtils.hpp"
+#include "CoMDTypes.hpp"
 
 #define POT_SHIFT 1.0
 
@@ -157,7 +157,7 @@ int ljForce(SimFlat* s)
    #pragma omp parallel for
    for (int ii=0; ii<fSize; ++ii)
    {
-      zeroReal3(s->atoms->f[ii]);
+      zeroArray(s->atoms->f[ii]);
       s->atoms->U[ii] = 0.;
    }
 
