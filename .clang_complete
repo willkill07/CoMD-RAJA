@@ -4,4 +4,3 @@
 -Wextra
 -Wpedantic
 -pedantic-errors
--Werror

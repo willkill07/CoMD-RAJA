@@ -25,6 +25,6 @@ template <typename T> inline T *comdRealloc(void *ptr, size_t iSize) {
   return (T *)realloc(ptr, sizeof(T) * iSize);
 }
 
-template <typename T> inline void comdFree(T *ptr) { free((void *)ptr); }
+template <typename T> inline void comdFree(T *ptr) { if (ptr) free((void *)ptr); }
 
 #endif

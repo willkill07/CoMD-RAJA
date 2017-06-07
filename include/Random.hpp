@@ -5,7 +5,7 @@
 #ifndef __RANDOM_H
 #define __RANDOM_H
 
-#include "mytype.hpp"
+#include "MyTypes.hpp"
 #include <stdint.h>
 
 /// Return a random number from a Gaussian distribution.

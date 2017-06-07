@@ -1,22 +1,22 @@
 /// \file
-/// Wrappers for MPI functions.  This should be the only compilation 
+/// Wrappers for MPI functions.  This should be the only compilation
 /// unit in the code that directly calls MPI functions.  To build a pure
 /// serial version of the code with no MPI, do not define DO_MPI.  If
 /// DO_MPI is not defined then all MPI functionality is replaced with
 /// equivalent single task behavior.
 
-#include "parallel.hpp"
+#include "Parallel.hpp"
 
 #ifdef DO_MPI
 #include <mpi.h>
 #endif
 
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <assert.h>
+#include <cstdio>
+#include <ctime>
+#include <cstring>
+#include <cassert>
 
-static int myRank = 0;
+static int rank = 0;
 static int nRanks = 1;
 
 #ifdef DO_MPI
@@ -28,29 +28,29 @@ static int nRanks = 1;
 
 #endif
 
-int getNRanks()
+int Parallel::totalRanks()
 {
    return nRanks;
 }
 
-int getMyRank()   
+int Parallel::myRank()
 {
-   return myRank;
+   return rank;
 }
 
 /// \details
 /// For now this is just a check for rank 0 but in principle it could be
 /// more complex.  It is also possible to suppress practically all
 /// output by causing this function to return 0 for all ranks.
-int printRank()
+int Parallel::printRank()
 {
-   if (myRank == 0) return 1;
+   if (rank == 0) return 1;
    return 0;
 }
 
-void timestampBarrier(const char* msg)
+void Parallel::timestampBarrier(const char* msg)
 {
-   barrierParallel();
+   barrier();
    if (! printRank())
       return;
    time_t t= time(NULL);
@@ -60,7 +60,7 @@ void timestampBarrier(const char* msg)
    fflush(screenOut);
 }
 
-void initParallel(int* argc, char*** argv)
+void Parallel::init(int *argc, char*** argv)
 {
 #ifdef DO_MPI
    MPI_Init(argc, argv);
@@ -69,14 +69,14 @@ void initParallel(int* argc, char*** argv)
 #endif
 }
 
-void destroyParallel()
+void Parallel::destroy()
 {
 #ifdef DO_MPI
    MPI_Finalize();
 #endif
 }
 
-void barrierParallel()
+void Parallel::barrier()
 {
 #ifdef DO_MPI
    MPI_Barrier(MPI_COMM_WORLD);
@@ -90,8 +90,7 @@ void barrierParallel()
 /// \param [in]  recvLen Maximum number of bytes to receive.
 /// \param [in]  source  Rank in MPI_COMM_WORLD from which to receive.
 /// \return Number of bytes received.
-int sendReceiveParallel(void* sendBuf, int sendLen, int dest,
-                        void* recvBuf, int recvLen, int source)
+int Parallel::sendReceive(void* sendBuf, int sendLen, int dest, void* recvBuf, int recvLen, int source)
 {
 #ifdef DO_MPI
    int bytesReceived;
@@ -110,48 +109,7 @@ int sendReceiveParallel(void* sendBuf, int sendLen, int dest,
 #endif
 }
 
-void addIntParallel(int* sendBuf, int* recvBuf, int count)
-{
-#ifdef DO_MPI
-   MPI_Allreduce(sendBuf, recvBuf, count, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-#else
-   for (int ii=0; ii<count; ++ii)
-      recvBuf[ii] = sendBuf[ii];
-#endif
-}
-
-void addRealParallel(real_t* sendBuf, real_t* recvBuf, int count)
-{
-#ifdef DO_MPI
-   MPI_Allreduce(sendBuf, recvBuf, count, REAL_MPI_TYPE, MPI_SUM, MPI_COMM_WORLD);
-#else
-   for (int ii=0; ii<count; ++ii)
-      recvBuf[ii] = sendBuf[ii];
-#endif
-}
-
-void addDoubleParallel(double* sendBuf, double* recvBuf, int count)
-{
-#ifdef DO_MPI
-   MPI_Allreduce(sendBuf, recvBuf, count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-#else
-   for (int ii=0; ii<count; ++ii)
-      recvBuf[ii] = sendBuf[ii];
-#endif
-}
-
-void maxIntParallel(int* sendBuf, int* recvBuf, int count)
-{
-#ifdef DO_MPI
-   MPI_Allreduce(sendBuf, recvBuf, count, MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-#else
-   for (int ii=0; ii<count; ++ii)
-      recvBuf[ii] = sendBuf[ii];
-#endif
-}
-
-
-void minRankDoubleParallel(RankReduceData* sendBuf, RankReduceData* recvBuf, int count)
+void Parallel::minRankDouble(RankReduceData* sendBuf, RankReduceData* recvBuf, int count)
 {
 #ifdef DO_MPI
    MPI_Allreduce(sendBuf, recvBuf, count, MPI_DOUBLE_INT, MPI_MINLOC, MPI_COMM_WORLD);
@@ -164,7 +122,7 @@ void minRankDoubleParallel(RankReduceData* sendBuf, RankReduceData* recvBuf, int
 #endif
 }
 
-void maxRankDoubleParallel(RankReduceData* sendBuf, RankReduceData* recvBuf, int count)
+void Parallel::maxRankDouble(RankReduceData* sendBuf, RankReduceData* recvBuf, int count)
 {
 #ifdef DO_MPI
    MPI_Allreduce(sendBuf, recvBuf, count, MPI_DOUBLE_INT, MPI_MAXLOC, MPI_COMM_WORLD);
@@ -178,14 +136,14 @@ void maxRankDoubleParallel(RankReduceData* sendBuf, RankReduceData* recvBuf, int
 }
 
 /// \param [in] count Length of buf in bytes.
-void bcastParallel(void* buf, int count, int root)
+void Parallel::bcast(void *buf, int count)
 {
 #ifdef DO_MPI
    MPI_Bcast(buf, count, MPI_BYTE, root, MPI_COMM_WORLD);
 #endif
 }
 
-int builtWithMpi(void)
+bool Parallel::builtWithMpi()
 {
 #ifdef DO_MPI
    return 1;
@@ -193,5 +151,3 @@ int builtWithMpi(void)
    return 0;
 #endif
 }
-
-
