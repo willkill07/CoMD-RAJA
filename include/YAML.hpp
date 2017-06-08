@@ -1,19 +1,20 @@
-/// \file
-/// Write simulation information in YAML format.
+#ifndef YAML_OUTPUT_HPP_
+#define YAML_OUTPUT_HPP_
 
-#ifndef __YAML_OUTPUT_H
-#define __YAML_OUTPUT_H
+#include <stdio.h>
 
-#include <cstdio>
-
-/// Provide access to the YAML file in other compliation units.
 extern FILE* yamlFile;
 
-void yamlBegin(void);
-void yamlEnd(void);
+void
+yamlBegin(void);
 
-void yamlAppInfo(FILE* file);
+void
+yamlEnd(void);
 
-void printSeparator(FILE* file);
+void
+yamlAppInfo(FILE* file);
+
+void
+printSeparator(FILE* file);
 
 #endif

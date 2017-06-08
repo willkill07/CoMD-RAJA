@@ -1,25 +1,17 @@
-/// \file
-/// CoMD data structures.
-
-#ifndef __COMDTYPES_H_
-#define __COMDTYPES_H_
+#ifndef COMD_TYPES_HPP_
+#define COMD_TYPES_HPP_
 
 #include "MyTypes.hpp"
-
 #include "Command.hpp"
 #include "Domain.hpp"
-
 #include "Atoms.hpp"
 #include "HaloExchange.hpp"
 #include "LinkCell.hpp"
-
 #include "BasePotential.hpp"
 #include "EAMPotential.hpp"
 #include "LJPotential.hpp"
-
 #include "Timers.hpp"
 #include "YAML.hpp"
-
 #include "Constants.hpp"
 #include "Random.hpp"
 
@@ -28,7 +20,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/// species data: chosen to match the data found in the setfl/funcfl files
 struct SpeciesData {
   char name[3]; //!< element name
   int atomicNo; //!< atomic number
@@ -40,8 +31,6 @@ struct SpeciesData {
   }
 };
 
-/// Simple struct to store the initial energy and number of atoms.
-/// Used to check energy conservation and atom conservation.
 struct Validate {
   double eTot0; //<! Initial total energy
   int nAtoms0;  //<! Initial global number of atoms
@@ -62,10 +51,6 @@ struct Validate {
   }
 };
 
-///
-/// The fundamental simulation data structure with MAXATOMS in every
-/// link cell.
-///
 template <typename PotentialType>
 struct SimFlat {
   real_t ePotential{0.0}; //!< the total potential energy of the system
@@ -241,10 +226,6 @@ struct SimFlat {
     stopTimer(commReduceTimer);
   }
 
-  /// Prints current time, energy, performance etc to monitor the state of
-  /// the running simulation.  Performance per atom is scaled by the
-  /// number of local atoms per process this should give consistent timing
-  /// assuming reasonable load balance
   void
   printThings(int iStep, double elapsedTime) {
     static int iStepPrev = -1;
@@ -306,9 +287,6 @@ struct SimFlat {
     fflush(file);
   }
 
-  /// Creates atom positions on a face centered cubic (FCC) lattice with
-  /// nx * ny * nz unit cells and lattice constant lat.
-  /// Set momenta to zero.
   void
   createFccLattice(int nx, int ny, int nz, real_t lat) {
     const real_t *localMin = domain.localMin; // alias
@@ -394,8 +372,6 @@ struct SimFlat {
     vcm[2]           = vcmSum[2] / totalMass;
   }
 
-  /// Sets the center of mass velocity of the system.
-  /// \param [in] newVcm The desired center of mass velocity.
   void
   setVcm(real_t newVcm[3]) {
     real_t oldVcm[3];
@@ -417,16 +393,6 @@ struct SimFlat {
     }
   }
 
-  /// Sets the temperature of system.
-  ///
-  /// Selects atom velocities randomly from a boltzmann (equilibrium)
-  /// distribution that corresponds to the specified temperature.  This
-  /// random process will typically result in a small, but non zero center
-  /// of mass velocity and a small difference from the specified
-  /// temperature.  For typical MD runs these small differences are
-  /// unimportant, However, to avoid possible confusion, we set the center
-  /// of mass velocity to zero and scale the velocities to exactly match
-  /// the input temperature.
   void
   setTemperature(real_t temperature) {
 // set initial velocities for the distribution
@@ -466,10 +432,6 @@ struct SimFlat {
     temp = eKinetic / atoms.nGlobal / kB_eV / 1.5;
   }
 
-  /// Add a random displacement to the atom positions.
-  /// Atoms are displaced by a random distance in the range
-  /// [-delta, +delta] along each axis.
-  /// \param [in] delta The maximum displacement (along each axis).
   void
   randomDisplacements(real_t delta) {
 #pragma omp parallel for

@@ -1,14 +1,10 @@
-/// \file
-/// Initialize the atom configuration.
-
-#ifndef __INIT_ATOMS_H
-#define __INIT_ATOMS_H
+#ifndef ATOMS_HPP_
+#define ATOMS_HPP_
 
 #include "MyTypes.hpp"
 
 struct LinkCell;
 
-/// Atom data
 struct Atoms {
     int nLocal;    //!< total number of atoms on this processor
     int nGlobal;   //!< total number of atoms in simulation

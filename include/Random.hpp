@@ -1,11 +1,8 @@
-/// \file
-/// Simple random number generators for uniform and gaussian
-/// distributions.
-
-#ifndef __RANDOM_H
-#define __RANDOM_H
+#ifndef RANDOM_HPP_
+#define RANDOM_HPP_
 
 #include "MyTypes.hpp"
+
 #include <stdint.h>
 
 /// Return a random number from a Gaussian distribution.

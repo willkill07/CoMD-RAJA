@@ -1,22 +1,6 @@
-/// CoMD: A Classical Molecular Dynamics Mini-app
-///
-/// CoMD is a reference implementation of typical classical molecular
-/// dynamics algorithms and workloads.  It is created and maintained by
-/// The Exascale Co-Design Center for Materials in Extreme Environments
-/// (ExMatEx).  http://codesign.lanl.gov/projects/exmatex.  The
-/// code is intended to serve as a vehicle for co-design by allowing
-/// others to extend and/or reimplement it as needed to test performance of
-/// new architectures, programming models, etc.
-///
-/// The current version of CoMD is available from:
-/// http://exmatex.github.io/CoMD
-///
-/// To contact the developers of CoMD send email to: exmatex-comd@llnl.gov.
-///
-
-#include <cassert>
-#include <cstdio>
-#include <cstring>
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
 #include <strings.h>
 
 #include "CoMDTypes.hpp"
@@ -30,6 +14,7 @@
 
 void
 initSubsystems();
+
 void
 finalizeSubsystems();
 
@@ -98,17 +83,17 @@ doSimulation(Command const &cmd) {
   sim.printYaml(yamlFile);
   sim.printYaml(screenOut);
 
-  Validate validate(sim); // atom counts, energy
+  Validate validate(sim);
 
   Parallel::timestampBarrier("Initialization Finished\n");
   Parallel::timestampBarrier("Starting simulation\n");
 
-  // This is the CoMD main loop
   const int nSteps    = sim.nSteps;
   const int printRate = sim.printRate;
   int iStep           = 0;
+
   profileStart(loopTimer);
-  for (; iStep < nSteps;) {
+  while (iStep < nSteps) {
     startTimer(commReduceTimer);
     sim.sumAtoms();
     stopTimer(commReduceTimer);
@@ -122,13 +107,12 @@ doSimulation(Command const &cmd) {
     iStep += printRate;
   }
   profileStop(loopTimer);
+
   sim.sumAtoms();
   sim.printThings(iStep, getElapsedTime(timestepTimer));
   Parallel::timestampBarrier("Ending simulation\n");
 
-  // Epilog
   validateResult(sim, validate);
-
   printPerformanceResults(sim.atoms.nGlobal, sim.printRate);
   printPerformanceResultsYaml(yamlFile);
 }
@@ -159,13 +143,10 @@ validateResult(const SimFlat<T> &sim, const Validate &val) {
   }
 }
 
-/// Check that the user input meets certain criteria.
 void
 sanityChecks(Command const &cmd, double cutoff, double latticeConst,
              char const latticeType[8]) {
   int failCode = 0;
-
-  // Check that domain grid matches number of ranks. (fail code 1)
   int nProcs = cmd.xproc * cmd.yproc * cmd.zproc;
   if (nProcs != Parallel::totalRanks()) {
     failCode |= 1;
@@ -174,7 +155,6 @@ sanityChecks(Command const &cmd, double cutoff, double latticeConst,
               "\nNumber of MPI ranks must match xproc * yproc * zproc\n");
   }
 
-  // Check whether simuation is too small (fail code 2)
   double minx  = 2 * cutoff * cmd.xproc;
   double miny  = 2 * cutoff * cmd.yproc;
   double minz  = 2 * cutoff * cmd.zproc;
@@ -192,7 +172,6 @@ sanityChecks(Command const &cmd, double cutoff, double latticeConst,
               minx, miny, minz);
   }
 
-  // Check for supported lattice structure (fail code 4)
   if (strcasecmp(latticeType, "FCC") != 0) {
     failCode |= 4;
     if (Parallel::printRank())
@@ -202,10 +181,7 @@ sanityChecks(Command const &cmd, double cutoff, double latticeConst,
   }
   int checkCode = failCode;
   Parallel::bcast(&checkCode, sizeof(int));
-  // This assertion can only fail if different tasks failed different
-  // sanity checks.  That should not be possible.
   assert(checkCode == failCode);
-
   if (failCode != 0)
     exit(failCode);
 }

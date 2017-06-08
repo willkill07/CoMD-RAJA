@@ -1,30 +1,28 @@
-/// \file
-/// Frequently needed typedefs.
+#ifndef MYTYPE_HPP_
+#define MYTYPE_HPP_
 
-#ifndef __MYTYPE_H_
-#define __MYTYPE_H_
+#include <stdio.h>
 
-/// \def SINGLE determines whether single or double precision is built
 #ifdef SINGLE
-using real_t = float;  //!< define native type for CoMD as single precision
-  #define FMT1 "%g"    //!< /def format argument for floats
-  #define EMT1 "%e"    //!< /def format argument for eng floats
+using real_t = float;
+#define FMT1 "%g"
+#define EMT1 "%e"
 #else
-using real_t = double; //!< define native type for CoMD as double precision
-  #define FMT1 "%lg"   //!< \def format argument for doubles
-  #define EMT1 "%le"   //!< \def format argument for eng doubles
+using real_t = double;
+#define FMT1 "%lg"
+#define EMT1 "%le"
 #endif
 
-using real3 = real_t[3]; //!< a convenience vector with three real_t
+using real3 = real_t[3];
 
 template <typename T, unsigned int N>
-void zeroArray(T (&a)[N])
-{
+void
+zeroArray(T (&a)[N]) {
   constexpr const T ZERO(0);
   for (unsigned int i = 0; i < N; ++i)
-    a[i] = ZERO;
+    a[i]              = ZERO;
 }
 
-#define screenOut stdout
+static FILE* const screenOut = stdout;
 
 #endif

@@ -1,14 +1,11 @@
-/// \file
-/// Communicate halo data such as "ghost" atoms with neighboring tasks.
-
-#ifndef __HALO_EXCHANGE_
-#define __HALO_EXCHANGE_
+#ifndef HALO_EXCHANGE_HPP_
+#define HALO_EXCHANGE_HPP_
 
 #include "Atoms.hpp"
-#include "MyTypes.hpp"
-#include "HaloTypes.hpp"
 #include "Domain.hpp"
+#include "HaloTypes.hpp"
 #include "LinkCell.hpp"
+#include "MyTypes.hpp"
 #include "Parallel.hpp"
 #include "Timers.hpp"
 
@@ -16,27 +13,9 @@
 
 struct Domain;
 
-/// A polymorphic structure to store information about a halo exchange.
-/// This structure can be thought of as an abstract base class that
-/// specifies the interface and implements the communication patterns of
-/// a halo exchange.  Concrete sub-classes supply actual implementations
-/// of the loadBuffer, unloadBuffer, and destroy functions, that are
-/// specific to the actual data being exchanged.  If the subclass needs
-/// additional data members, these can be stored in a structure that is
-/// pointed to by parms.
-///
-/// Designing the structure this way allows us to re-use the
-/// communication code for both atom data and partial force data.
-///
-/// \see eamForce
-/// \see redistributeAtoms
 template <typename Child>
 struct HaloExchange {
-  /// The MPI ranks of the six face neighbors of the local domain.
-  /// Ranks are stored in the order specified in HaloFaceOrder.
-  int nbrRank[6] = {0,0,0,0,0,0};
-  /// The maximum send/recv buffer size (in bytes) that will be needed
-  /// for this halo exchange.
+  int nbrRank[6]  = {0, 0, 0, 0, 0, 0};
   int bufCapacity = 0;
 
   HaloExchange() = default;
@@ -66,15 +45,14 @@ private:
 
   template <typename T, typename Buffer>
   void
-  unload(T& data, HaloFaceOrder face, int bufferSize,
-         Buffer* buffer) {
+  unload(T& data, HaloFaceOrder face, int bufferSize, Buffer* buffer) {
     static_cast<Child*>(this)->unloadBuffer(data, face, bufferSize, buffer);
   }
 
   template <typename T>
   void
   exchangeData(T& data, int iAxis) {
-    Child* self = static_cast<Child*>(this);
+    Child* self   = static_cast<Child*>(this);
     using MsgType = typename Child::MsgType;
 
     enum HaloFaceOrder faceM = static_cast<HaloFaceOrder>(2 * iAxis);
@@ -82,12 +60,12 @@ private:
     int nbrRankM             = nbrRank[faceM];
     int nbrRankP             = nbrRank[faceP];
     char* block              = (char*)::malloc(4 * bufCapacity);
-    MsgType* sendBufM           = reinterpret_cast<MsgType*>(block);
-    MsgType* sendBufP           = reinterpret_cast<MsgType*>(block + bufCapacity);
-    MsgType* recvBufM           = reinterpret_cast<MsgType*>(block + 2 * bufCapacity);
-    MsgType* recvBufP           = reinterpret_cast<MsgType*>(block + 3 * bufCapacity);
-    int nSendM               = self->loadBuffer(data, faceM, sendBufM);
-    int nSendP               = self->loadBuffer(data, faceP, sendBufP);
+    MsgType* sendBufM        = reinterpret_cast<MsgType*>(block);
+    MsgType* sendBufP        = reinterpret_cast<MsgType*>(block + bufCapacity);
+    MsgType* recvBufM = reinterpret_cast<MsgType*>(block + 2 * bufCapacity);
+    MsgType* recvBufP = reinterpret_cast<MsgType*>(block + 3 * bufCapacity);
+    int nSendM        = self->loadBuffer(data, faceM, sendBufM);
+    int nSendP        = self->loadBuffer(data, faceP, sendBufP);
     startTimer(commHaloTimer);
     int nRecvP = Parallel::sendReceive(sendBufM, nSendM, nbrRankM, recvBufP,
                                        bufCapacity, nbrRankP);
@@ -184,7 +162,6 @@ struct HaloAtomExchange : public HaloExchange<HaloAtomExchange> {
   }
 };
 
-/// Sort the atoms by gid in the specified link cell.
 void
 sortAtomsInCell(Atoms& atoms, LinkCell const& boxes, int iBox);
 
